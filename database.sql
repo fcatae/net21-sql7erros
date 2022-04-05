@@ -1,3 +1,5 @@
+-- exemplo
+
 create table tbLogin
 (
   id int primary key identity,
