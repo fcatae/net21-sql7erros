@@ -8,6 +8,7 @@ create table tbLogin
   pwd varchar(100)
 );
 
+-- tabelas
 insert tbLogin(username, email, pwd)
 values ('admin', 'teste@domain.com.br', 'fiap');
 GO
