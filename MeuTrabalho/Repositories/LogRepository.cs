@@ -6,35 +6,39 @@ using System.Threading.Tasks;
 
 namespace MeuTrabalho.Repositories
 {
-    public class LogRepository
+    public class LogRepository : ILogRepository
     {
-        SqlConnection _connection;
+        string _connectionString;
 
-        public LogRepository(SqlConnection connection)
+        public LogRepository(string connectionString)
         {
-            this._connection = connection;
+            this._connectionString = connectionString;
+        }
+
+        public void InsereLog(string tipo)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES (@tipo)", connection);
+                sql.Parameters.AddWithValue("@tipo", tipo);
+
+                sql.ExecuteScalar();
+            }
         }
 
         public int TotalRegistros()
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                SqlCommand command = new SqlCommand("SELECT * FROM tbLog ORDER BY 1", this._connection);
+                connection.Open();
 
-                var reader = command.ExecuteReader();
-                int total = 0;
-                while (reader.Read())
-                {
-                    total = total + 1;
-                }
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM tbLog ORDER BY 1", connection);
 
-                reader.Close();
+                int total = (int)command.ExecuteScalar();
 
                 return total;
-            }
-            catch(Exception ex)
-            {
-                throw ex;
             }
         }
     }

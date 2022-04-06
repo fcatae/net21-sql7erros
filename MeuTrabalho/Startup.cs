@@ -1,3 +1,4 @@
+using MeuTrabalho.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,12 @@ namespace MeuTrabalhoNet5
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            string connectionString = Configuration["SqlServer:ConnectionString"];
+
+            services.AddSingleton<ILogRepository>(new LogRepositoryInMemory());
+
+            //services.AddSingleton<ILogRepository>(new LogRepository(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

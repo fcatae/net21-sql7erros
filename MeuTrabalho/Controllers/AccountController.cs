@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MeuTrabalho.Models;
 using System.Data.SqlClient;
+using Dapper;
 
 namespace MeuTrabalho.Controllers
 {
@@ -21,21 +22,21 @@ namespace MeuTrabalho.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(LoginViewModel model)
         {
-            try
+            SqlConnection connection = new SqlConnection("Server=martedb.database.windows.net;Database=db2022;User=aclogin;Password=homework-mar22");
+
+            var ret = connection.Query($"SELECT username FROM tbLogin WHERE email=@email AND pwd=@pwd", 
+                new { email = model.Email, pwd = model.Password });
+
+            string username = ret.FirstOrDefault();
+
+            if (username != null)
             {
-                SqlConnection connection = new SqlConnection("Server=martedb.database.windows.net;Database=db2022;User=aclogin;Password=homework-mar22");
-                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email='" + model.Email + "' AND pwd='" + model.Password + "'", connection);
-
-                connection.Open();
-                string username = (string)cmd.ExecuteScalar().ToString();
-                connection.Close();
-
+                // autenticado
                 return Redirect($"/Home/Dashboard?name={username}");
             }
-            catch(Exception ex)
-            {
-                return View(model);
-            }
+
+            // sem autenticacao
+            return Redirect($"/Error/NotAuthenticated");
         }
     }
 }
