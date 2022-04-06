@@ -6,11 +6,20 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MeuTrabalho.Models;
 using System.Data.SqlClient;
+using Dapper;
+using MeuTrabalho.Repositories;
 
 namespace MeuTrabalho.Controllers
 {
     public class AccountController : Controller
     {
+        readonly ILoginRepository _loginRepository;
+
+        public AccountController(ILoginRepository loginRepository)
+        {
+            _loginRepository = loginRepository; 
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -21,21 +30,17 @@ namespace MeuTrabalho.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(LoginViewModel model)
         {
-            try
-            {
-                SqlConnection connection = new SqlConnection("Server=martedb.database.windows.net;Database=db2022;User=aclogin;Password=homework-mar22");
-                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email='" + model.Email + "' AND pwd='" + model.Password + "'", connection);
+            // valida email e password
+            string username = _loginRepository.FindUsername(model.Email, model.Password);
 
-                connection.Open();
-                string username = (string)cmd.ExecuteScalar().ToString();
-                connection.Close();
-
-                return Redirect($"/Home/Dashboard?name={username}");
-            }
-            catch(Exception ex)
+            if (username == null)
             {
-                return View(model);
+                // sem autenticacao
+                return Redirect($"/");
             }
+
+            // autenticado
+            return Redirect($"/Home/Dashboard?name={username}");
         }
     }
 }

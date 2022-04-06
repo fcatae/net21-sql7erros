@@ -1,3 +1,4 @@
+using MeuTrabalho.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,12 @@ namespace MeuTrabalhoNet5
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            string connectionStringApp = Configuration["SqlServer:App"];
+            string connectionStringLogin = Configuration["SqlServer:Login"];
+
+            services.AddSingleton<ILogRepository>(new LogRepository(connectionStringApp));
+            services.AddSingleton<ILoginRepository>(new LoginRepository(connectionStringLogin));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,8 +55,6 @@ namespace MeuTrabalhoNet5
                     name: "default",
                     pattern: "{controller=Account}/{action=Index}/{id?}");
             });
-
-            // app.UseAuthorization();
 
         }
     }

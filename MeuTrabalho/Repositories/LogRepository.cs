@@ -3,39 +3,31 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace MeuTrabalho.Repositories
 {
-    public class LogRepository
+    public class LogRepository : ILogRepository
     {
-        SqlConnection _connection;
+        string _connectionString;
 
-        public LogRepository(SqlConnection connection)
+        public LogRepository(string connectionString)
         {
-            this._connection = connection;
+            this._connectionString = connectionString;
+        }
+
+        public void InsereLog(string tipo)
+        {
+            SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Execute("INSERT tbLog VALUES (@tipo)", new { tipo = tipo });
         }
 
         public int TotalRegistros()
         {
-            try
-            {
-                SqlCommand command = new SqlCommand("SELECT * FROM tbLog ORDER BY 1", this._connection);
+            SqlConnection connection = new SqlConnection(_connectionString);
+            var resultado = connection.QuerySingle("SELECT total=COUNT(*) FROM tbLog ORDER BY 1");
 
-                var reader = command.ExecuteReader();
-                int total = 0;
-                while (reader.Read())
-                {
-                    total = total + 1;
-                }
-
-                reader.Close();
-
-                return total;
-            }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
+            return (int)resultado.total;
         }
     }
 }
