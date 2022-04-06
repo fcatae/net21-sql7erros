@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace MeuTrabalho.Repositories
 {
@@ -17,29 +18,16 @@ namespace MeuTrabalho.Repositories
 
         public void InsereLog(string tipo)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES (@tipo)", connection);
-                sql.Parameters.AddWithValue("@tipo", tipo);
-
-                sql.ExecuteScalar();
-            }
+            SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Execute("INSERT tbLog VALUES (@tipo)", new { tipo = tipo });
         }
 
         public int TotalRegistros()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
+            SqlConnection connection = new SqlConnection(_connectionString);
+            var resultado = connection.QuerySingle("SELECT total=COUNT(*) FROM tbLog ORDER BY 1");
 
-                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM tbLog ORDER BY 1", connection);
-
-                int total = (int)command.ExecuteScalar();
-
-                return total;
-            }
+            return (int)resultado.total;
         }
     }
 }
