@@ -16,8 +16,12 @@ GO
 create table tbLog(description varchar(1000));
 GO
 
-create user app with password='<password>'
-create user aclogin with password='<password>'
+create login app with password='<password>'
+create login aclogin with password='<password>'
+
+create user app
+create user aclogin
+
 grant select on tbLogin to aclogin
 grant select, insert on tbLog to app
 
